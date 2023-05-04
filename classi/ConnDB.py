@@ -15,9 +15,26 @@ class ConnDB:
         if self.conn:
             self.conn.close()
 
-    def executeCommit(self, query):
+    def executeCommit(self, query, parms=()):
+        try:
+            cur = self.conn.cursor()
+            cur.execute(query, parms)
+            self.conn.commit()
+            return cur.lastrowid
+        except Error as e:
+            raise e
+
+    def execute(self, query):
         try:
             cur = self.conn.cursor()
             cur.execute(query)
+        except Error as e:
+            raise e
+        
+    def executeFetchAll(self, query):
+        try:
+            cur = self.conn.cursor()
+            cur.execute(query)
+            return cur.fetchall()
         except Error as e:
             raise e
