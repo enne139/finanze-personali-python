@@ -1,6 +1,10 @@
 from classi.FinanzeDB import FinanzeDB
 
-FinanzeDB = FinanzeDB("database/database.sqlite")
+finanzeDB = FinanzeDB("database/database.sqlite")
 
-FinanzeDB.close()
+valore = "3c08c308b6e5426a9646eb87517b4a1b"
+
+print(finanzeDB.getCategoriaByNome("giroconto"))
+
+finanzeDB.close()
 

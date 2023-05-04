@@ -24,17 +24,17 @@ class ConnDB:
         except Error as e:
             raise e
 
-    def execute(self, query):
+    def execute(self, query, parms=()):
         try:
             cur = self.conn.cursor()
-            cur.execute(query)
+            cur.execute(query, parms)
         except Error as e:
             raise e
         
-    def executeFetchAll(self, query):
+    def executeFetchAll(self, query, parms=()):
         try:
             cur = self.conn.cursor()
-            cur.execute(query)
+            cur.execute(query, parms)
             return cur.fetchall()
         except Error as e:
             raise e

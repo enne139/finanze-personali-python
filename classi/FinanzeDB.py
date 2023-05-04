@@ -19,7 +19,6 @@ CREATE TABLE conti (
 );
             """)
 
-    def creaTabelle(self):
         self.execute("""
 CREATE TABLE categorie (
     uuid_categoria CHAR(32) PRIMARY KEY,
@@ -28,8 +27,6 @@ CREATE TABLE categorie (
 );
             """)
         
-
-    def creaTabelle(self):
         self.execute("""
 CREATE TABLE transazioni (
     uuid_transazione CHAR(32) PRIMARY KEY,
@@ -43,8 +40,7 @@ CREATE TABLE transazioni (
     FOREIGN KEY (uuid_categoria) REFERENCES categorie
 );
             """)
-        
-    def creaTabelle(self):
+
         self.execute("""
 CREATE TRIGGER modifica_conto
 AFTER UPDATE ON conti
@@ -55,8 +51,7 @@ BEGIN
     WHERE uuid_conto = NEW.uuid_conto;
 END;
             """)
-        
-    def creaTabelle(self):
+
         self.execute("""
 CREATE TRIGGER modifica_categorie
 AFTER UPDATE ON categorie
@@ -67,8 +62,7 @@ BEGIN
     WHERE uuid_categoria = NEW.uuid_categoria; 
 END;
             """)
-        
-    def creaTabelle(self):
+
         self.execute("""
 CREATE TRIGGER modifica_transazioni
 AFTER UPDATE ON transazioni
@@ -79,6 +73,8 @@ BEGIN
     WHERE uuid_transazione=NEW.uuid_transazione; 
 END;
             """)
+        
+        self.insertCategoria("giroconto")
         
 #------------------------------------------------------
 # get categorie
@@ -93,7 +89,7 @@ FROM
     categorie 
 WHERE 
     uuid_categoria=?;
-            """, (uuid))
+            """, (uuid,))
         if len(result) == 0:
             return False
         else:
@@ -108,7 +104,7 @@ FROM
     categorie 
 WHERE 
     nome_categoria=?;
-            """, (nome))
+            """, (nome,))
         if len(result) == 0:
             return False
         else:
@@ -136,7 +132,7 @@ FROM
     conti 
 WHERE 
     uuid_conto=?;
-            """, (uuid))
+            """, (uuid,))
         if len(result) == 0:
             return False
         else:
@@ -150,7 +146,7 @@ SELECT
 FROM 
     conti 
 WHERE nome_conto=?;
-            """, (nome))
+            """, (nome,))
         if len(result) == 0:
             return False
         else:
