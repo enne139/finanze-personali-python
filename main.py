@@ -2,9 +2,25 @@ from classi.FinanzeDB import FinanzeDB
 
 finanzeDB = FinanzeDB("database/database.sqlite")
 
-valore = "3c08c308b6e5426a9646eb87517b4a1b"
+with open("database/dati", "r") as file1:
+    for line in file1.read().split("\n"):
+        line = line.split(";")
 
-print(finanzeDB.getCategoriaByNome("giroconto"))
+        print(line)
+
+        uuid_conto = finanzeDB.getContoByNome("hype")[0]
+
+        uuid_categoria = finanzeDB.getCategoriaByNome(line[2])
+        if uuid_categoria == False:
+            finanzeDB.insertCategoria(line[2])
+            uuid_categoria = finanzeDB.getCategoriaByNome(line[2]) [0]
+        else:
+            uuid_categoria = uuid_categoria[0]
+
+
+        finanzeDB.insertTransazione(str(line[0]), float(line[1]), str(line[3]), uuid_conto, uuid_categoria)
+
+
 
 finanzeDB.close()
 

@@ -165,6 +165,32 @@ FROM
 # get transazioni
 #------------------------------------------------------
    
+    def getAllTransazioni(self):
+        return self.executeFetchAll("""
+SELECT uuid_transazione,
+    data_transazione,
+    importo,
+    descrizione,
+    uuid_conto,
+    uuid_categoria
+FROM transazioni
+            """)
+    
+    def getAllTransazioniJoined(self):
+        return self.executeFetchAll("""
+SELECT 
+	T.uuid_transazione,
+    T.data_transazione,
+    T.importo,
+    T.descrizione,
+	conti.nome_conto AS conto,
+	categorie.nome_categoria AS categoria,
+    T.uuid_conto,
+    T.uuid_categoria
+FROM transazioni AS T
+JOIN conti ON conti.uuid_conto=T.uuid_conto
+JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
+            """)
 
 #------------------------------------------------------
 # inserimenti

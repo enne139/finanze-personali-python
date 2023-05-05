@@ -21,6 +21,9 @@
                 <label for="Sconto">conto</label>
                 <select id="Sconto" class="form-control" name="Sconto">
                     <option value="-1">*</option>
+                    {% for conto in lista_conti %}
+                    <option value="{{ conto[0] }}">{{ conto[1] }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="container">
