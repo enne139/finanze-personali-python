@@ -6,20 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+    </script>
 </head>
 <body>
 
 
 {% include "components/navbar.html" %}
 
+{% if errore %}
+    <div class="alert alert-warning" role="alert">
+        Errore : {{ errore }}
+    </div>
+{% endif %}
 
 <div class="container-fluid">
     
     <div class="row border border-3">
-        <form method="post" action="">
+        <form method="get" action="" id="formConto">
             <div class="form-group mb-3">
                 <label for="Sconto">conto</label>
-                <select id="Sconto" class="form-control" name="Sconto">
+                <select id="Sconto" class="form-control" name="Sconto" onchange="document.getElementById('formConto').submit();">
                     <option value="-1">*</option>
                     {% for conto in lista_conti %}
                     <option value="{{ conto[0] }}">{{ conto[1] }}</option>
@@ -32,12 +40,48 @@
         </form>
     </div>
 
+    <div class="row border border-3">
+        <canvas id="GBtot" style="width:100%;max-width:700px"></canvas>
+    </div>
+
+    <div class="row border border-3">
+        <canvas id="GBmes" style="width:100%;max-width:700px"></canvas>
+    </div>
+
 </div>
 
 
 
 
+    <script>
+        var xValues = [{% for val in lista_GBtot_cat %} "{{val}}", {% endfor %}];
+        var yValues = [{% for val in lista_GBtot_val %} {{val}}, {% endfor %}];
 
+        new Chart("GBtot", {
+        type: "bar",
+        data: {
+            labels: xValues,
+            datasets: [{
+            data: yValues
+            }]
+        },
+        options: {}
+        });
+
+        var xValues = [{% for val in lista_GBmes_cat %} "{{val}}", {% endfor %}];
+        var yValues = [{% for val in lista_GBmes_val %} {{val}}, {% endfor %}];
+
+        new Chart("GBmes", {
+        type: "bar",
+        data: {
+            labels: xValues,
+            datasets: [{
+            data: yValues
+            }]
+        },
+        options: {}
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
 </body>
 </html>

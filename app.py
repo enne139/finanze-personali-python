@@ -13,6 +13,15 @@ def home():
     lista_categorie = []
     lista_conti = []
 
+    out = []
+    out2 = []
+
+    lista_GBtot_cat = []
+    lista_GBtot_val = []
+
+    lista_GBmes_cat = []
+    lista_GBmes_val = []
+
     errore = None
 
     try:
@@ -25,10 +34,78 @@ def home():
     except Exception as e:
         errore = str(e)
 
+    Sconto = request.args.get('Sconto')
+
+    if Sconto is not None and Sconto!="-1":
+        try:
+            finanzeDB = FinanzeDB("database/database.sqlite")
+
+            out = finanzeDB.executeFetchAll("""
+SELECT 
+    SUM(T.importo),
+    categorie.nome_categoria AS categoria
+FROM transazioni AS T
+JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
+WHERE T.uuid_conto=?
+GROUP BY T.uuid_categoria
+                """, (Sconto,))
+
+            out2 = finanzeDB.executeFetchAll("""
+SELECT 
+    SUM(T.importo),
+    categorie.nome_categoria AS categoria
+FROM transazioni AS T
+JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
+WHERE T.uuid_conto=? AND date('now','start of month','-1 days') < T.data_transazione
+GROUP BY T.uuid_categoria
+                """, (Sconto,))
+
+            finanzeDB.close()
+        except Exception as e:
+            errore = str(e)
+    else:
+        try:
+            finanzeDB = FinanzeDB("database/database.sqlite")
+
+            out = finanzeDB.executeFetchAll("""
+SELECT 
+    SUM(T.importo),
+    categorie.nome_categoria AS categoria
+FROM transazioni AS T
+JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
+GROUP BY T.uuid_categoria
+                """)
+            
+            out2 = finanzeDB.executeFetchAll("""
+SELECT 
+    SUM(T.importo),
+    categorie.nome_categoria AS categoria
+FROM transazioni AS T
+JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
+WHERE date('now','start of month','-1 days') < T.data_transazione
+GROUP BY T.uuid_categoria
+                """)
+
+            finanzeDB.close()
+        except Exception as e:
+            errore = str(e)
+
+    for row in out:
+        lista_GBtot_cat.append(row[1])
+        lista_GBtot_val.append(row[0])
+
+    for row in out2:
+        lista_GBmes_cat.append(row[1])
+        lista_GBmes_val.append(row[0])
+
     return render_template("home.html",                             
                             errore=errore, 
                             lista_categorie=lista_categorie, 
-                            lista_conti=lista_conti
+                            lista_conti=lista_conti,
+                            lista_GBtot_cat=lista_GBtot_cat,
+                            lista_GBtot_val=lista_GBtot_val,
+                            lista_GBmes_cat=lista_GBmes_cat,
+                            lista_GBmes_val=lista_GBmes_val
                             )
 
 @app.route("/inserimento.html", methods=["POST", "GET"])
