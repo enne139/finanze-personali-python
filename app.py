@@ -4,6 +4,8 @@ from flask import request
 
 from classi.FinanzeDB import FinanzeDB
 
+from config import pathDB
+
 app = Flask(__name__)
 
 @app.route("/", methods=["POST", "GET"])
@@ -25,7 +27,7 @@ def home():
     errore = None
 
     try:
-        finanzeDB = FinanzeDB("database/database.sqlite")
+        finanzeDB = FinanzeDB(pathDB)
 
         lista_categorie = finanzeDB.getAllCategorie()
         lista_conti = finanzeDB.getAllConti()
@@ -38,7 +40,7 @@ def home():
 
     if Sconto is not None and Sconto!="-1":
         try:
-            finanzeDB = FinanzeDB("database/database.sqlite")
+            finanzeDB = FinanzeDB(pathDB)
 
             out = finanzeDB.executeFetchAll("""
 SELECT 
@@ -65,7 +67,7 @@ GROUP BY T.uuid_categoria
             errore = str(e)
     else:
         try:
-            finanzeDB = FinanzeDB("database/database.sqlite")
+            finanzeDB = FinanzeDB(pathDB)
 
             out = finanzeDB.executeFetchAll("""
 SELECT 
@@ -125,7 +127,7 @@ def inserimento():
             contoD = request.form["contoD"]
 
             try:
-                finanzeDB = FinanzeDB("database/database.sqlite")
+                finanzeDB = FinanzeDB(pathDB)
 
                 print(contoD)
 
@@ -146,7 +148,7 @@ def inserimento():
             nome = request.form["categoria"]
 
             try:
-                finanzeDB = FinanzeDB("database/database.sqlite")
+                finanzeDB = FinanzeDB(pathDB)
 
                 finanzeDB.insertCategoria(nome)
 
@@ -160,7 +162,7 @@ def inserimento():
             nome = request.form["conto"]
 
             try:
-                finanzeDB = FinanzeDB("database/database.sqlite")
+                finanzeDB = FinanzeDB(pathDB)
 
                 finanzeDB.insertConto(nome)
 
@@ -177,7 +179,7 @@ def inserimento():
             descrizione = request.form["descrizione"]
 
             try:
-                finanzeDB = FinanzeDB("database/database.sqlite")
+                finanzeDB = FinanzeDB(pathDB)
 
                 finanzeDB.insertTransazione(data,importo, descrizione, conto, categoria)
 
@@ -188,7 +190,7 @@ def inserimento():
                 errore = str(e)
 
     try:
-        finanzeDB = FinanzeDB("database/database.sqlite")
+        finanzeDB = FinanzeDB(pathDB)
 
         lista_categorie = finanzeDB.getAllCategorie()
         lista_conti = finanzeDB.getAllConti()
@@ -212,7 +214,7 @@ def lista():
     errore = None
 
     try:
-        finanzeDB = FinanzeDB("database/database.sqlite")
+        finanzeDB = FinanzeDB(pathDB)
 
         lista_categorie = finanzeDB.getAllCategorie()
         lista_conti = finanzeDB.getAllConti()
@@ -231,7 +233,7 @@ def lista():
 
     if Sconto is not None and Sconto!="-1":
         try:
-            finanzeDB = FinanzeDB("database/database.sqlite")
+            finanzeDB = FinanzeDB(pathDB)
 
             lista_colonne = ["data_transazione", "importo", "descrizione", "categoria"]
             lista_indici = [1, 2, 3, 5]
@@ -258,7 +260,7 @@ ORDER BY T.data_transazione DESC
             errore = str(e)
     else:
         try:
-            finanzeDB = FinanzeDB("database/database.sqlite")
+            finanzeDB = FinanzeDB(pathDB)
 
             lista_colonne = ["data_transazione", "importo", "descrizione", "conto", "categoria"]
             lista_indici = [1, 2, 3, 4, 5]

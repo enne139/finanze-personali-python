@@ -1,6 +1,8 @@
 from classi.FinanzeDB import FinanzeDB
 
-finanzeDB = FinanzeDB("database/database.sqlite")
+from config import pathDB
+
+finanzeDB = FinanzeDB(pathDB)
 
 with open("database/dati", "r") as file1:
     for line in file1.read().split("\n"):
