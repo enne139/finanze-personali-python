@@ -1,16 +1,16 @@
-CREATE TABLE conti (
+CREATE TABLE IF NOT EXISTS conti (
     uuid_conto CHAR(32) PRIMARY KEY,
     nome_conto VARCHAR(31) NOT NULL UNIQUE,
     ultima_modifica DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE categorie (
+CREATE TABLE IF NOT EXISTS categorie (
     uuid_categoria CHAR(32) PRIMARY KEY,
     nome_categoria VARCHAR(31) NOT NULL UNIQUE,
     ultima_modifica DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE transazioni (
+CREATE TABLE IF NOT EXISTS transazioni (
     uuid_transazione CHAR(32) PRIMARY KEY,
     data_transazione DATE NOT NULL,
     importo REAL NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE transazioni (
     FOREIGN KEY (uuid_categoria) REFERENCES categorie
 );
 
-CREATE TRIGGER modifica_conto
+CREATE TRIGGER IF NOT EXISTS modifica_conto
 AFTER UPDATE ON conti
 FOR EACH ROW
 BEGIN
@@ -31,7 +31,7 @@ BEGIN
     WHERE uuid_conto = NEW.uuid_conto;
 END;
 
-CREATE TRIGGER modifica_categorie
+CREATE TRIGGER IF NOT EXISTS modifica_categorie
 AFTER UPDATE ON categorie
 FOR EACH ROW
 BEGIN
@@ -40,7 +40,7 @@ BEGIN
     WHERE uuid_categoria = NEW.uuid_categoria; 
 END;
 
-CREATE TRIGGER modifica_transazioni
+CREATE TRIGGER IF NOT EXISTS modifica_transazioni
 AFTER UPDATE ON transazioni
 FOR EACH ROW
 BEGIN

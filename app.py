@@ -8,6 +8,11 @@ from classi.FinanzeDB import FinanzeDB
 
 from config import pathDB
 
+
+finanzeDB = FinanzeDB(pathDB)
+finanzeDB.creaTabelle()
+finanzeDB.close()
+
 app = Flask(__name__)
 
 @app.route("/", methods=["POST", "GET"])
@@ -115,96 +120,10 @@ GROUP BY T.uuid_categoria
 
             finanzeDB.close()
         except Exception as e:
-            errore = str(e)
+            return render_template("home.html", liste=liste, dati=dati,errore=str(e))
 
 
         return render_template("components/analisiMensile.html", liste=liste, dati=dati, errore=errore)
-
-#         try:
-#             finanzeDB = FinanzeDB(pathDB)
-
-#             out = finanzeDB.executeFetchAll("""
-# SELECT 
-#     SUM(T.importo),
-#     categorie.nome_categoria AS categoria
-# FROM transazioni AS T
-# JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
-# WHERE T.uuid_conto=?
-# GROUP BY T.uuid_categoria
-#                 """, (id_conto,))
-
-#             out2 = finanzeDB.executeFetchAll("""
-# SELECT 
-#     SUM(T.importo),
-#     categorie.nome_categoria AS categoria
-# FROM transazioni AS T
-# JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
-# WHERE T.uuid_conto=? AND date('now','start of month','-1 days') < T.data_transazione
-# GROUP BY T.uuid_categoria
-#                 """, (id_conto,))
-
-#             finanzeDB.close()
-#         except Exception as e:
-#             errore = str(e)
-#     else:
-#         try:
-#             finanzeDB = FinanzeDB(pathDB)
-
-#             out = finanzeDB.executeFetchAll("""
-# SELECT 
-#     SUM(T.importo),
-#     categorie.nome_categoria AS categoria
-# FROM transazioni AS T
-# JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
-# GROUP BY T.uuid_categoria
-#                 """)
-            
-#             out2 = finanzeDB.executeFetchAll("""
-# SELECT 
-#     SUM(T.importo),
-#     categorie.nome_categoria AS categoria
-# FROM transazioni AS T
-# JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
-# WHERE date('now','start of month','-1 days') < T.data_transazione
-# GROUP BY T.uuid_categoria
-#                 """)
-
-#             finanzeDB.close()
-#         except Exception as e:
-#             errore = str(e)
-
-#     dati["GBtot"] = {"categorie" : [], "valori" : []}
-
-#     dati["GTtotEnt"] = {"categorie" : [], "valori" : []}
-#     dati["GTtotUsc"] = {"categorie" : [], "valori" : []}
-
-#     for row in out:
-#         dati["GBtot"]["categorie"].append(row[1])
-#         dati["GBtot"]["valori"].append(row[0])
-
-#         if row[0]>=0 :
-#             dati["GTtotEnt"]["categorie"].append(row[1])
-#             dati["GTtotEnt"]["valori"].append(row[0])
-#         else:
-#             dati["GTtotUsc"]["categorie"].append(row[1])
-#             dati["GTtotUsc"]["valori"].append(-row[0])
-
-
-#     dati["GBmen"] = {"categorie" : [], "valori" : []}
-
-#     dati["GTmenEnt"] = {"categorie" : [], "valori" : []}
-#     dati["GTmenUsc"] = {"categorie" : [], "valori" : []}
-
-#     for row in out2:
-#         dati["GBmen"]["categorie"].append(row[1])
-#         dati["GBmen"]["valori"].append(row[0])
-
-#         if row[0]>=0 :
-#             dati["GTmenEnt"]["categorie"].append(row[1])
-#             dati["GTmenEnt"]["valori"].append(row[0])
-#         else:
-#             dati["GTmenUsc"]["categorie"].append(row[1])
-#             dati["GTmenUsc"]["valori"].append(-row[0])
 
     return render_template("home.html", liste=liste, dati=dati, errore="errore pagina errata")
 
