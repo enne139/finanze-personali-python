@@ -1,0 +1,142 @@
+{% extends  "home.html" %}
+{% block contenuto %}
+
+
+<h2>totale</h2>
+
+<div class="col border border-2">
+    <canvas id="GBtot" style="width:100%;max-width:700px"></canvas>
+    <script>
+        var xValues = [{% for val in dati["GBtot"]["categorie"] %} "{{val}}", {% endfor %}];
+        var yValues = [{% for val in dati["GBtot"]["valori"] %} {{val}}, {% endfor %}];
+
+        new Chart("GBtot", {
+        type: "bar",
+        data: {
+            labels: xValues,
+            datasets: [{
+            data: yValues
+            }]
+        },
+        options: {}
+        });
+    </script>
+</div>
+<div class="col border border-2">
+    <h3>entrate</h3>
+    <canvas id="GTtotEnt" style="width:100%;max-width:700px"></canvas>
+    <script>
+        var xValues = [{% for val in dati["GTtotEnt"]["categorie"] %} "{{val}}", {% endfor %}];
+        var yValues = [{% for val in dati["GTtotEnt"]["valori"] %} {{val}}, {% endfor %}];
+
+        new Chart("GTtotEnt", {
+        type: "pie",
+        data: {
+            labels: xValues,
+            datasets: [{
+            data: yValues
+            }]
+        },
+        options: {}
+        });
+    </script>
+</div>
+<div class="col border border-2">
+    <h3>uscite</h3>
+    <canvas id="GTtotUsc" style="width:100%;max-width:700px"></canvas>
+    <script>
+        var xValues = [{% for val in dati["GTtotUsc"]["categorie"] %} "{{val}}", {% endfor %}];
+        var yValues = [{% for val in dati["GTtotUsc"]["valori"] %} {{val}}, {% endfor %}];
+
+        new Chart("GTtotUsc", {
+        type: "pie",
+        data: {
+            labels: xValues,
+            datasets: [{
+            data: yValues
+            }]
+        },
+        options: {}
+        });
+    </script>
+</div>
+</div>
+
+<div class="row border border-3">
+<h2>mensile</h2>
+<div class="col border border-2">
+    <canvas id="GBmen" style="width:100%;max-width:700px"></canvas>
+    <script>
+        var xValues = [{% for val in dati["GBmen"]["categorie"] %} "{{val}}", {% endfor %}];
+        var yValues = [{% for val in dati["GBmen"]["valori"] %} {{val}}, {% endfor %}];
+
+        new Chart("GBmen", {
+        type: "bar",
+        data: {
+            labels: xValues,
+            datasets: [{
+            data: yValues
+            }]
+        },
+        options: {}
+        });
+    </script>
+</div>
+<div class="col border border-2">
+    <h3>entrate</h3>
+    <canvas id="GTmenEnt" style="width:100%;max-width:700px"></canvas>
+    <script>
+        var xValues = [{% for val in dati["GTmenEnt"]["categorie"] %} "{{val}}", {% endfor %}];
+        var yValues = [{% for val in dati["GTmenEnt"]["valori"] %} {{val}}, {% endfor %}];
+
+        new Chart("GTmenEnt", {
+        type: "pie",
+        data: {
+            labels: xValues,
+            datasets: [{
+            data: yValues
+            }]
+        },
+        options: {}
+        });
+    </script>
+</div>
+<div class="col border border-2">
+    <h3>uscite</h3>
+    <canvas id="GTmenUsc" style="width:100%;max-width:700px"></canvas>
+    <script>
+        var xValues = [{% for val in dati["GTmenUsc"]["categorie"] %} "{{val}}", {% endfor %}];
+        var yValues = [{% for val in dati["GTmenUsc"]["valori"] %} {{val}}, {% endfor %}];
+
+        new Chart("GTmenUsc", {
+        type: "pie",
+        data: {
+            labels: xValues,
+            datasets: [{
+            data: yValues
+            }]
+        },
+        options: {}
+        });
+    </script>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

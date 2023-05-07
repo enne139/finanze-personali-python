@@ -1,6 +1,8 @@
 from flask import Flask
 from flask import render_template
 from flask import request
+from datetime import datetime
+
 
 from classi.FinanzeDB import FinanzeDB
 
@@ -12,102 +14,161 @@ app = Flask(__name__)
 @app.route("/home.html", methods=["POST", "GET"])
 def home():
 
-    lista_categorie = []
-    lista_conti = []
-
-    out = []
-    out2 = []
-
-    lista_GBtot_cat = []
-    lista_GBtot_val = []
-
-    lista_GBmes_cat = []
-    lista_GBmes_val = []
-
     errore = None
 
+    liste = {}
+
+    liste["tipologie"] = [ [0, "analisi mensile"], [1, "analisi annuale"], [2, "analisi totale"] ]
+
+    dati = {}
+
+    dati["conto"] = "-1"
+    dati["tipologia"] = 0
+
+    # estrazione elenco categorie e conti
     try:
         finanzeDB = FinanzeDB(pathDB)
 
-        lista_categorie = finanzeDB.getAllCategorie()
-        lista_conti = finanzeDB.getAllConti()
+        liste['categorie'] = finanzeDB.getAllCategorie()
+        liste['conti'] = finanzeDB.getAllConti()
 
         finanzeDB.close()
     except Exception as e:
-        errore = str(e)
+        return render_template("home.html", liste=liste, dati=dati,errore=str(e))
 
-    Sconto = request.args.get('Sconto')
+    # ottenimento parametro relativo al conto
+    id_conto = request.args.get('Sconto')
+    
+    # controllo se esistente e non uguale a quello di default
+    if id_conto is not None and id_conto!="-1":
 
-    if Sconto is not None and Sconto!="-1":
-        try:
-            finanzeDB = FinanzeDB(pathDB)
+        trovato = False
 
-            out = finanzeDB.executeFetchAll("""
-SELECT 
-    SUM(T.importo),
-    categorie.nome_categoria AS categoria
-FROM transazioni AS T
-JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
-WHERE T.uuid_conto=?
-GROUP BY T.uuid_categoria
-                """, (Sconto,))
+        # controlla se ha un valore di accettabile
+        for row in liste["conti"]:
+            if row[0]==id_conto:
+                trovato = True
+                break
+        
+        if not trovato:
+            return render_template("home.html", liste=liste, dati=dati,errore="conto non valido")
 
-            out2 = finanzeDB.executeFetchAll("""
-SELECT 
-    SUM(T.importo),
-    categorie.nome_categoria AS categoria
-FROM transazioni AS T
-JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
-WHERE T.uuid_conto=? AND date('now','start of month','-1 days') < T.data_transazione
-GROUP BY T.uuid_categoria
-                """, (Sconto,))
+        dati["id_conto"] = id_conto
 
-            finanzeDB.close()
-        except Exception as e:
-            errore = str(e)
-    else:
-        try:
-            finanzeDB = FinanzeDB(pathDB)
+    # ottenimento parametro relativo al tipologia vista
+    id_tipologia = request.args.get('Stipologia')
 
-            out = finanzeDB.executeFetchAll("""
-SELECT 
-    SUM(T.importo),
-    categorie.nome_categoria AS categoria
-FROM transazioni AS T
-JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
-GROUP BY T.uuid_categoria
-                """)
+    # controllo se esistente
+    if id_tipologia is not None:
+
+        trovato = False
+
+        # controlla se ha un valore di accettabile
+        for row in liste["tipologie"]:
+            if row[0]==int(id_tipologia):
+                trovato = True
+                break
+        
+        if not trovato:
+            return render_template("home.html", liste=liste, dati=dati,errore="vista non trovata non valido")
+
+        dati["id_tipologia"] = id_tipologia
+
+    if id_tipologia == 0:
+        dati["mese"] = datetime.today().strftime("%Y-%m")
+
+        return render_template("components/analisiMensile.html", liste=liste, dati=dati, errore=errore)
+
+#         try:
+#             finanzeDB = FinanzeDB(pathDB)
+
+#             out = finanzeDB.executeFetchAll("""
+# SELECT 
+#     SUM(T.importo),
+#     categorie.nome_categoria AS categoria
+# FROM transazioni AS T
+# JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
+# WHERE T.uuid_conto=?
+# GROUP BY T.uuid_categoria
+#                 """, (id_conto,))
+
+#             out2 = finanzeDB.executeFetchAll("""
+# SELECT 
+#     SUM(T.importo),
+#     categorie.nome_categoria AS categoria
+# FROM transazioni AS T
+# JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
+# WHERE T.uuid_conto=? AND date('now','start of month','-1 days') < T.data_transazione
+# GROUP BY T.uuid_categoria
+#                 """, (id_conto,))
+
+#             finanzeDB.close()
+#         except Exception as e:
+#             errore = str(e)
+#     else:
+#         try:
+#             finanzeDB = FinanzeDB(pathDB)
+
+#             out = finanzeDB.executeFetchAll("""
+# SELECT 
+#     SUM(T.importo),
+#     categorie.nome_categoria AS categoria
+# FROM transazioni AS T
+# JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
+# GROUP BY T.uuid_categoria
+#                 """)
             
-            out2 = finanzeDB.executeFetchAll("""
-SELECT 
-    SUM(T.importo),
-    categorie.nome_categoria AS categoria
-FROM transazioni AS T
-JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
-WHERE date('now','start of month','-1 days') < T.data_transazione
-GROUP BY T.uuid_categoria
-                """)
+#             out2 = finanzeDB.executeFetchAll("""
+# SELECT 
+#     SUM(T.importo),
+#     categorie.nome_categoria AS categoria
+# FROM transazioni AS T
+# JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
+# WHERE date('now','start of month','-1 days') < T.data_transazione
+# GROUP BY T.uuid_categoria
+#                 """)
 
-            finanzeDB.close()
-        except Exception as e:
-            errore = str(e)
+#             finanzeDB.close()
+#         except Exception as e:
+#             errore = str(e)
 
-    for row in out:
-        lista_GBtot_cat.append(row[1])
-        lista_GBtot_val.append(row[0])
+#     dati["GBtot"] = {"categorie" : [], "valori" : []}
 
-    for row in out2:
-        lista_GBmes_cat.append(row[1])
-        lista_GBmes_val.append(row[0])
+#     dati["GTtotEnt"] = {"categorie" : [], "valori" : []}
+#     dati["GTtotUsc"] = {"categorie" : [], "valori" : []}
 
-    return render_template("home.html",                             
-                            errore=errore, 
-                            lista_categorie=lista_categorie, 
-                            lista_conti=lista_conti,
-                            lista_GBtot_cat=lista_GBtot_cat,
-                            lista_GBtot_val=lista_GBtot_val,
-                            lista_GBmes_cat=lista_GBmes_cat,
-                            lista_GBmes_val=lista_GBmes_val
+#     for row in out:
+#         dati["GBtot"]["categorie"].append(row[1])
+#         dati["GBtot"]["valori"].append(row[0])
+
+#         if row[0]>=0 :
+#             dati["GTtotEnt"]["categorie"].append(row[1])
+#             dati["GTtotEnt"]["valori"].append(row[0])
+#         else:
+#             dati["GTtotUsc"]["categorie"].append(row[1])
+#             dati["GTtotUsc"]["valori"].append(-row[0])
+
+
+#     dati["GBmen"] = {"categorie" : [], "valori" : []}
+
+#     dati["GTmenEnt"] = {"categorie" : [], "valori" : []}
+#     dati["GTmenUsc"] = {"categorie" : [], "valori" : []}
+
+#     for row in out2:
+#         dati["GBmen"]["categorie"].append(row[1])
+#         dati["GBmen"]["valori"].append(row[0])
+
+#         if row[0]>=0 :
+#             dati["GTmenEnt"]["categorie"].append(row[1])
+#             dati["GTmenEnt"]["valori"].append(row[0])
+#         else:
+#             dati["GTmenUsc"]["categorie"].append(row[1])
+#             dati["GTmenUsc"]["valori"].append(-row[0])
+
+    return render_template("components/analisiMensile.html",                             
+                            liste=liste,
+                            dati=dati,
+                            errore=errore
                             )
 
 @app.route("/inserimento.html", methods=["POST", "GET"])

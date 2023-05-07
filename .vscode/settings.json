@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "${workspaceFolder:provaFinanzePy}/database.sqlite",
+            "name": "provaFinanze"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
