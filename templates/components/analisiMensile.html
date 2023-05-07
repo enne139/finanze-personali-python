@@ -2,30 +2,68 @@
 {% block contenuto %}
 
 
-<h2>totale</h2>
-
 <div class="row border border-3">
     <form method="get" action="" id="formTipologia">
         <div class="form-group mb-3">
             <label for="Smese">mese</label>
-            <input id="Smese" class="form-control" type="month" name="Smese" value="{{dati["mese"]}}" onchange="document.getElementById('formTipologia').submit();">
+            <input id="Smese" class="form-control" type="month" name="Smese" value="{{dati["mese"]}}" onchange="document.getElementById('formTipologia').submit();" >
         </div>
+        <input type="hidden" name="Sconto" value="{{dati["id_conto"]}}">
+        <input type="hidden" name="Stipologia" value="{{dati["id_tipologia"]}}">
     </form>
 </div>
 <div class="row border border-3">
 
+    <h2>totale</h2>
+
     <div class="col border border-3">
 
-    col3
+        <h1>entrate</h1>
+        <canvas id="GEnt" style="width:100%;max-width:700px"></canvas>
 
     </div>
 
     <div class="col border border-3">
 
-    col4
+        <h2>uscite</h2>
+        <canvas id="GUsc" style="width:100%;max-width:700px"></canvas>
 
     </div>
 
 </div>
+
+<script>
+    var barColors = ['red','blue','green','yellow','orange','purple','pink','brown','grey','black','white','violet']
+
+    var xValues = [{% for val in dati["GEnt"]["categorie"] %} "{{val}}", {% endfor %}];
+    var yValues = [{% for val in dati["GEnt"]["valori"] %} {{val}}, {% endfor %}];
+
+    new Chart("GEnt", {
+    type: "pie",
+    data: {
+        labels: xValues,
+        datasets: [{
+        data: yValues,
+        backgroundColor: barColors
+        }]
+    },
+    options: {}
+    });
+
+    var xValues = [{% for val in dati["GUsc"]["categorie"] %} "{{val}}", {% endfor %}];
+    var yValues = [{% for val in dati["GUsc"]["valori"] %} {{val}}, {% endfor %}];
+
+    new Chart("GUsc", {
+    type: "pie",
+    data: {
+        labels: xValues,
+        datasets: [{
+        data: yValues,
+        backgroundColor: barColors
+        }]
+    },
+    options: {}
+    });
+</script>
 
 {% endblock %}

@@ -18,12 +18,12 @@ def home():
 
     liste = {}
 
-    liste["tipologie"] = [ [0, "analisi mensile"], [1, "analisi annuale"], [2, "analisi totale"] ]
+    liste["tipologie"] = [ ["0", "analisi mensile"], ["1", "analisi annuale"], ["2", "analisi totale"] ]
 
     dati = {}
 
-    dati["conto"] = "-1"
-    dati["tipologia"] = 0
+    dati["id_conto"] = "-1"
+    dati["id_tipologia"] = "0"
 
     # estrazione elenco categorie e conti
     try:
@@ -65,7 +65,7 @@ def home():
 
         # controlla se ha un valore di accettabile
         for row in liste["tipologie"]:
-            if row[0]==int(id_tipologia):
+            if row[0]==id_tipologia:
                 trovato = True
                 break
         
@@ -74,8 +74,49 @@ def home():
 
         dati["id_tipologia"] = id_tipologia
 
-    if id_tipologia == 0:
+    if dati["id_tipologia"] == "0":
         dati["mese"] = datetime.today().strftime("%Y-%m")
+
+        mese = request.args.get('Smese')
+
+        if mese is not None:
+            dati["mese"] = mese
+
+        dati["GUsc"] = {"categorie" : [], "valori" : []}
+        dati["GEnt"] = {"categorie" : [], "valori" : []}
+
+        try:
+            finanzeDB = FinanzeDB(pathDB)
+            
+            params = [ dati["mese"]+"-01",  dati["mese"]+"-01" ]
+            query = """
+SELECT  
+    SUM(T.importo),
+    categorie.nome_categoria AS categoria
+FROM transazioni AS T
+JOIN categorie ON categorie.uuid_categoria=T.uuid_categoria
+WHERE date(?, 'start of month','-1 days') < T.data_transazione AND  T.data_transazione < date(?, 'start of month','+1 months')
+"""
+            if dati["id_conto"]!="-1" :
+                query += """ AND T.uuid_conto=?"""
+                params.append(dati["id_conto"])
+            query +="""
+GROUP BY T.uuid_categoria
+""" 
+            print(params)
+
+            for row in finanzeDB.executeFetchAll(query, params):
+                if row[0]>0:
+                    dati["GEnt"]["categorie"].append(row[1])
+                    dati["GEnt"]["valori"].append(row[0])
+                else:
+                    dati["GUsc"]["categorie"].append(row[1])
+                    dati["GUsc"]["valori"].append(-row[0])
+
+            finanzeDB.close()
+        except Exception as e:
+            errore = str(e)
+
 
         return render_template("components/analisiMensile.html", liste=liste, dati=dati, errore=errore)
 
@@ -165,11 +206,7 @@ def home():
 #             dati["GTmenUsc"]["categorie"].append(row[1])
 #             dati["GTmenUsc"]["valori"].append(-row[0])
 
-    return render_template("components/analisiMensile.html",                             
-                            liste=liste,
-                            dati=dati,
-                            errore=errore
-                            )
+    return render_template("home.html", liste=liste, dati=dati, errore="errore pagina errata")
 
 @app.route("/inserimento.html", methods=["POST", "GET"])
 def inserimento():
