@@ -108,8 +108,6 @@ WHERE date(?, 'start of month','-1 days') < T.data_transazione AND  T.data_trans
             query +="""
 GROUP BY T.uuid_categoria
 """ 
-            print(params)
-
             for row in finanzeDB.executeFetchAll(query, params):
                 if row[0]>0:
                     dati["GEnt"]["categorie"].append(row[1])
@@ -121,8 +119,68 @@ GROUP BY T.uuid_categoria
             finanzeDB.close()
         except Exception as e:
             return render_template("home.html", liste=liste, dati=dati,errore=str(e))
+        
+        dati["BUsc"] = {"giorni" : [], "valori" : []}
+        dati["BEnt"] = {"giorni" : [], "valori" : []}
 
+        gironi = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
+        for i in range(1, gironi[(datetime.strptime(dati["mese"],'%Y-%m').month)-1]+1):
+            dati["BUsc"]["giorni"].append(i)
+            dati["BUsc"]["valori"].append(0)
+            dati["BEnt"]["giorni"].append(i)
+            dati["BEnt"]["valori"].append(0)
+
+        if datetime.strptime(dati["mese"],'%Y-%m').month==2:
+            dati["BUsc"]["giorni"].pop()
+            dati["BUsc"]["valori"].pop()
+            dati["BEnt"]["giorni"].pop()
+            dati["BEnt"]["valori"].pop()
+
+        try:
+            finanzeDB = FinanzeDB(pathDB)
+            
+            params = [ dati["mese"]+"-01",  dati["mese"]+"-01" ]
+            query = """
+SELECT  
+    SUM(T.importo),
+    strftime("%d",data_transazione)
+FROM transazioni AS T
+WHERE date(?, 'start of month','-1 days') < T.data_transazione AND  T.data_transazione < date(?, 'start of month','+1 months') AND 
+	T.importo > 0
+"""
+            if dati["id_conto"]!="-1" :
+                query += """ AND T.uuid_conto=?"""
+                params.append(dati["id_conto"])
+            query +="""
+GROUP BY T.data_transazione
+""" 
+            for row in finanzeDB.executeFetchAll(query, params):
+                dati["BEnt"]["valori"][int(row[1])] = row[0]
+
+            params = [ dati["mese"]+"-01",  dati["mese"]+"-01" ]
+            query = """
+SELECT  
+    SUM(T.importo),
+    strftime("%d",data_transazione)
+FROM transazioni AS T
+WHERE date(?, 'start of month','-1 days') < T.data_transazione AND  T.data_transazione < date(?, 'start of month','+1 months') AND 
+	T.importo < 0
+"""
+            if dati["id_conto"]!="-1" :
+                query += """ AND T.uuid_conto=?"""
+                params.append(dati["id_conto"])
+            query +="""
+GROUP BY T.data_transazione
+""" 
+
+            for row in finanzeDB.executeFetchAll(query, params):
+                dati["BUsc"]["valori"][int(row[1])] = -row[0]
+
+            finanzeDB.close()
+        except Exception as e:
+            return render_template("home.html", liste=liste, dati=dati,errore=str(e))
+        
         return render_template("components/analisiMensile.html", liste=liste, dati=dati, errore=errore)
 
     return render_template("home.html", liste=liste, dati=dati, errore="errore pagina errata")

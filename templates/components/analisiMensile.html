@@ -39,14 +39,14 @@
     <div class="col border border-3">
 
         <h1>entrate</h1>
-        <canvas id="GEnt" style="width:100%;max-width:700px"></canvas>
+        <canvas id="BEnt" style="width:100%;max-width:700px"></canvas>
 
     </div>
 
     <div class="col border border-3">
 
         <h2>uscite</h2>
-        <canvas id="GUsc" style="width:100%;max-width:700px"></canvas>
+        <canvas id="BUsc" style="width:100%;max-width:700px"></canvas>
 
     </div>
 
@@ -75,6 +75,36 @@
 
     new Chart("GUsc", {
     type: "pie",
+    data: {
+        labels: xValues,
+        datasets: [{
+        data: yValues,
+        backgroundColor: barColors
+        }]
+    },
+    options: {}
+    });
+
+    var xValues = [{% for val in dati["BEnt"]["giorni"] %} "{{val}}", {% endfor %}];
+    var yValues = [{% for val in dati["BEnt"]["valori"] %} {{val}}, {% endfor %}];
+
+    new Chart("BEnt", {
+    type: "bar",
+    data: {
+        labels: xValues,
+        datasets: [{
+        data: yValues,
+        backgroundColor: barColors
+        }]
+    },
+    options: {}
+    });
+
+    var xValues = [{% for val in dati["BUsc"]["giorni"] %} "{{val}}", {% endfor %}];
+    var yValues = [{% for val in dati["BUsc"]["valori"] %} {{val}}, {% endfor %}];
+
+    new Chart("BUsc", {
+    type: "bar",
     data: {
         labels: xValues,
         datasets: [{
