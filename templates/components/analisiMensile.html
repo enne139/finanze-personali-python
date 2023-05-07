@@ -53,6 +53,18 @@
 </div>
 
 <script>
+
+    function generateRandomColors(numColors) {
+    var colors = [];
+    for (var i = 0; i < numColors; i++) {
+        var r = Math.floor(Math.random() * 256);
+        var g = Math.floor(Math.random() * 256);
+        var b = Math.floor(Math.random() * 256);
+        colors.push("rgb(" + r + ", " + g + ", " + b + ")");
+    }
+    return colors;
+    }
+
     var barColors = ['red','blue','green','yellow','orange','purple','pink','brown','grey','black','white','violet']
 
     var xValues = [{% for val in dati["GEnt"]["categorie"] %} "{{val}}", {% endfor %}];
@@ -64,7 +76,7 @@
         labels: xValues,
         datasets: [{
         data: yValues,
-        backgroundColor: barColors
+        backgroundColor: generateRandomColors(30)
         }]
     },
     options: {}
@@ -79,7 +91,7 @@
         labels: xValues,
         datasets: [{
         data: yValues,
-        backgroundColor: barColors
+        backgroundColor: generateRandomColors(30)
         }]
     },
     options: {}
@@ -94,7 +106,7 @@
         labels: xValues,
         datasets: [{
         data: yValues,
-        backgroundColor: barColors
+        backgroundColor: generateRandomColors(30)
         }]
     },
     options: {}
@@ -109,7 +121,7 @@
         labels: xValues,
         datasets: [{
         data: yValues,
-        backgroundColor: barColors
+        backgroundColor: generateRandomColors(30)
         }]
     },
     options: {}
